@@ -4,35 +4,36 @@ import android.os.*
 import androidx.appcompat.app.*
 import androidx.compose.ui.platform.*
 import com.example.notes.data.*
+import com.example.notes.ui.*
 
 class EditorActivity : AppCompatActivity() {
 
 
     fun sendNote(note: Note) {
-        println("sending note")
-        println(note)
-        intent.putExtra("note", note)
+        intent.putExtra(GLOBAL.note, note)
         // the most important thing when passing data
         // to main activity through intents
         setResult(RESULT_OK, intent)
     }
 
-    fun goBack() = finish()
+    fun goBack(note: Note? = null) {
+        if (!(note == null || note.isEmpty())) sendNote(note)
+        finish()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val note: Note? = intent.extras?.getParcelable<Note>("note")?.also {
-            println("receiving note")
-            println(it)
-        }
+        val note: Note? = intent.extras?.getParcelable(GLOBAL.note)
 
         setContent {
-            EditorScreen(
-                note = note,
-                onNoteChange = { if (!it.isEmpty()) sendNote(it); goBack() },
-                onActionBack = ::goBack
-            )
+            NotesTheme {
+                EditorScreen(
+                    note = note,
+                    onNoteChange = ::goBack,
+                    onActionBack = ::goBack
+                )
+            }
         }
     }
 }

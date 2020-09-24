@@ -1,5 +1,6 @@
 package com.example.notes.main
 
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
 import androidx.compose.material.*
@@ -17,43 +18,64 @@ import com.example.notes.test.*
 fun MainScreen(
     notes: List<Note>,
     onAddNote: () -> Unit,
-    onRemoveNote: (Note) -> Unit,
     onEditNote: (Note) -> Unit,
-    currentlyEdited: Note?,
-    onChangeCurrentlyEdited: (Note?) -> Unit,
+    tagged: List<Note>,
+    onTagNote: (Note, Boolean) -> Unit,
+    onRemoveTagged: () -> Unit,
+    onCancelRemoval: () -> Unit,
 ) {
+    val deleting = tagged.isNotEmpty()
 
     Scaffold(
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = { onAddNote() },
-                icon = { Icons.Default.AddCircle },
-            )
-        },
+        floatingActionButton = { if (!deleting) NotesFAB(onAddNote) },
+        topBar = { if (deleting) NotesTopAppBar(tagged, onRemoveTagged, onCancelRemoval) }
     ) {
         NotesList(
             notes = notes,
-            onRemoveNote = onRemoveNote,
             onEditNote = onEditNote,
-            currentlyEdited = currentlyEdited,
-            onChangeCurrentlyEdited = onChangeCurrentlyEdited
+            tagged = tagged,
+            onTagNote = onTagNote,
         )
     }
 }
 
+@Composable
+fun NotesTopAppBar(
+    tagged: List<Note>,
+    onRemoveTagged: () -> Unit,
+    onCancelRemoval: () -> Unit,
+) = TopAppBar(
+    title = { Text("Deleting ${tagged.size} notes") },
+    actions = {
+        IconButton(
+            onClick = onRemoveTagged,
+            icon = { Icon(Icons.Default.Delete) }
+        )
+        IconButton(
+            onClick = onCancelRemoval,
+            icon = { Icon(Icons.Default.Close) }
+        )
+    }
+)
+
+@Composable
+fun NotesFAB(
+    onAddNote: () -> Unit,
+) = FloatingActionButton(
+    onClick = { onAddNote() },
+    icon = { Icon(Icons.Default.Add) },
+)
 
 @Composable
 fun NotesList(
     notes: List<Note>,
-    onRemoveNote: (Note) -> Unit,
     onEditNote: (Note) -> Unit,
-    currentlyEdited: Note?,
-    onChangeCurrentlyEdited: (Note?) -> Unit,
+    tagged: List<Note>,
+    onTagNote: (Note, Boolean) -> Unit
 ) {
 
     Column(
-        modifier = Modifier .fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.fillMaxWidth(),
     ) {
         WithConstraints {
             val padding = 8.dp
@@ -68,23 +90,25 @@ fun NotesList(
                     Row(
                         modifier = Modifier.paddingOfRow(idx, newNotes.size - 1, padding)
                     ) {
-                        NoteItem(
-                            note = notePair.first!!,
-                            onEditNote = onEditNote,
-                            onRemoveNote = onRemoveNote,
-                            currentlyEdited = currentlyEdited,
-                            onChangeCurrentlyEdited = onChangeCurrentlyEdited,
-                            size = size,
-                            padding = padding,
-                        )
-
-                        if (notePair.second != null) {
+                        notePair.first!!.also { first ->
                             NoteItem(
-                                note = notePair.second!!,
+                                note = first,
                                 onEditNote = onEditNote,
-                                onRemoveNote = onRemoveNote,
-                                currentlyEdited = currentlyEdited,
-                                onChangeCurrentlyEdited = onChangeCurrentlyEdited,
+                                tagged = first in tagged,
+                                tagging = tagged.isNotEmpty(),
+                                onTagNote = { onTagNote(first, it) },
+                                size = size,
+                                padding = padding,
+                            )
+                        }
+
+                        notePair.second?.also { second ->
+                            NoteItem(
+                                note = second,
+                                onEditNote = onEditNote,
+                                tagged = second in tagged,
+                                tagging = tagged.isNotEmpty(),
+                                onTagNote = { onTagNote(second, it) },
                                 size = size,
                                 padding = padding
                             )

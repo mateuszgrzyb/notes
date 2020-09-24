@@ -6,7 +6,8 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.*
 import androidx.compose.ui.graphics.*
-import androidx.compose.ui.text.input.*
+import androidx.compose.ui.platform.*
+import androidx.compose.ui.unit.*
 import com.example.notes.data.*
 import java.util.*
 
@@ -20,21 +21,46 @@ fun EditorScreen(
     val (title, changeTitle) = remember { mutableStateOf(note?.title ?: "") }
     val (body, changeBody) = remember { mutableStateOf(note?.body ?: "") }
     val uuid = remember { note?.uuid ?: UUID.randomUUID() }
+    val padding = 8.dp
 
-    Column {
+    Scaffold(
+        topBar = { TopAppBar(title = { Text ("Editing") } ) }
+    ) {
 
-        NewTextField(
-            text = title,
-            onTextChange = changeTitle
-        )
-        NewTextField(
-            text = body,
-            onTextChange = changeBody,
-        )
+        Column(modifier = Modifier.padding(padding)) {
 
-        Row {
-            Button( { onNoteChange(Note(title, body, uuid)) } ) { Text("Apply") }
-            Button(onActionBack) { Text("Back") }
+            EditorTextField(
+                text = title,
+                onTextChange = changeTitle,
+                label = "Title",
+                padding = padding
+            )
+            WithConstraints {
+                val size = with(DensityAmbient.current) { constraints.maxWidth.toDp() }
+                EditorTextField(
+                    text = body,
+                    onTextChange = changeBody,
+                    size = size,
+                    label = "Body",
+                    padding = padding
+                )
+            }
+
+            Row(
+                modifier = Modifier.fillMaxSize(),
+                horizontalArrangement = Arrangement.End
+            ) {
+                EditorButton(
+                    onClick = { onNoteChange(Note(title, body, uuid)) },
+                    text = "Apply",
+                    padding = padding,
+                )
+                EditorButton(
+                    onClick = onActionBack,
+                    text = "Back",
+                    padding = padding,
+                )
+            }
         }
     }
 }
@@ -43,35 +69,33 @@ fun EditorScreen(
 fun EditorTextField(
     text: String,
     onTextChange: (String) -> Unit,
+    label: String,
+    padding: Dp,
     modifier: Modifier = Modifier,
-    onImeAction: () -> Unit = {}
-) = TextField(
-    value = text,
-    onValueChange = onTextChange,
-    label = { /* no label */ },
-    backgroundColor = Color.Transparent,
-    imeAction = ImeAction.Done,
-    onImeActionPerformed = { action, softKeyBoardController ->
-        if (action == ImeAction.Done) {
-            onImeAction()
-            softKeyBoardController?.hideSoftwareKeyboard()
-        }
-    },
-    modifier = modifier
-)
-
-@Composable
-fun NewTextField(
-    text: String,
-    onTextChange: (String) -> Unit,
-    modifier: Modifier = Modifier
+    size: Dp? = null
 ) {
+
+    val newModifier = if (size != null) modifier.preferredSize(size)
+                      else modifier.fillMaxWidth()
+
     TextField(
         value = text,
+        label = { Text(label) },
         onValueChange = onTextChange,
-        backgroundColor = Color.Transparent,
-        modifier = modifier.fillMaxWidth()
+        modifier = newModifier.padding(padding).background(Color.Transparent),
     )
+}
+
+@Composable
+fun EditorButton(
+    onClick: () -> Unit,
+    text: String,
+    padding: Dp
+) = Button(
+    onClick = onClick,
+    modifier = Modifier.padding(padding)
+) {
+    Text(text)
 }
 
 

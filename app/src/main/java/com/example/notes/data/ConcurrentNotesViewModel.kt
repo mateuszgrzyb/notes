@@ -2,23 +2,45 @@ package com.example.notes.data
 
 import android.app.*
 import androidx.compose.runtime.*
+import androidx.lifecycle.*
+import kotlinx.coroutines.*
 
-class NotesViewModel(
+//import kotlin.concurrent.*
+
+class ConcurrentNotesViewModel(
     app: Application
 ): SavedViewModel<List<Note>>(
     app = app,
     init =
-    //::listOf,
-    LIST::debug,
+    ::listOf,
+    //LIST::debug,
     serializer = LIST::serializer,
-    deserializer = LIST::deserializer,
+    deserializer = LIST::deserializer
 ) {
 
+    val saveTime: Long = 30_000
 
     // state flows down
-    var notes: List<Note> by mutableStateOf(load())
+    var notes: List<Note> by mutableStateOf(listOf())
 
     var changed: Boolean by mutableStateOf(false)
+
+    init {
+        viewModelScope.launch {
+            notes = loadDataAsync().await()
+            //while (true) {
+            //    delay(saveTime)
+            //    saveDataAsync(notes)
+            //}
+        }
+    }
+
+    suspend fun loadDataAsync(): Deferred<List<Note>> =
+        viewModelScope.async { withContext(Dispatchers.IO) { load() } }
+
+    suspend fun saveDataAsync(data: List<Note>) =
+        viewModelScope.launch { withContext(Dispatchers.IO) { save(data) } }
+
 
     // events flow up
     fun addNote(note: Note) {
@@ -57,4 +79,8 @@ class NotesViewModel(
         saveNotes()
         super.onCleared()
     }
+
 }
+
+
+

@@ -5,8 +5,6 @@ import android.os.*
 import androidx.activity.*
 import androidx.activity.result.contract.*
 import androidx.appcompat.app.*
-import androidx.compose.material.*
-import androidx.compose.ui.graphics.*
 import androidx.compose.ui.platform.*
 import androidx.lifecycle.*
 import com.example.notes.data.*
@@ -15,56 +13,64 @@ import com.example.notes.ui.*
 
 class MainActivity : AppCompatActivity() {
 
+    // all notes
+    val notesVM: ConcurrentNotesViewModel by viewModels {
+        ViewModelProvider.AndroidViewModelFactory(this.application)
+    }
+
+    // notes tagged for removal
+    val taggedVM: TaggedViewModel by viewModels()
+
     // receiving note
     val launcher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
     ) {
-        it?.data?.extras?.getParcelable<Note>("note")?.let { note ->
+        it?.data?.extras?.getParcelable<Note>(GLOBAL.note)?.let { note ->
             notesVM.putNoteFromEditor(note)
         }
-
-        notesVM.currentlyEdited = null
     }
 
     // sending note
-    fun goToEditor(note: Note?) {
+    fun goToEditor(note: Note? = null) {
         launcher.launch(
             Intent(this, EditorActivity::class.java).apply {
                 if (note != null) {
-                    println("sending note from main")
-                    println(note)
-                    putExtra("note", note)
+                    putExtra(GLOBAL.note, note)
                 }
             }
         )
     }
 
-    val notesVM: NotesViewModel by viewModels {
-        ViewModelProvider.AndroidViewModelFactory(this.application)
+    // deleting tagged notes
+    fun removeTagged() {
+        notesVM.removeNotes(taggedVM.tagged)
+        taggedVM.clearTagged()
     }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        println("create")
 
-        notesVM.currentlyEdited = null
 
         setContent {
             NotesTheme {
-                // A surface container using the 'background' color from the theme
-                //Surface(color = MaterialTheme.colors.background) {
-                Surface(color = Color.Gray) {
-                    MainScreen(
-                        notes = notesVM.notes,
-                        onAddNote = { goToEditor(null) },
-                        onRemoveNote = notesVM::removeNote,
-                        onEditNote = { goToEditor(notesVM.currentlyEdited) },
-                        currentlyEdited = notesVM.currentlyEdited,
-                        onChangeCurrentlyEdited = notesVM::changeCurrentlyEdited
-                    )
-                }
+                MainScreen(
+                    notes = notesVM.notes,
+                    onAddNote = ::goToEditor,
+                    onEditNote = ::goToEditor,
+                    tagged = taggedVM.tagged,
+                    onTagNote = taggedVM::tagNote,
+                    onRemoveTagged = ::removeTagged,
+                    onCancelRemoval = taggedVM::clearTagged,
+                )
             }
         }
+    }
+
+    override fun onStop() {
+        notesVM.saveNotes()
+        super.onStop()
     }
 }
 

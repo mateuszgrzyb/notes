@@ -1,26 +1,26 @@
 package com.example.notes.data
 
-import android.app.Application
-import android.content.Context
-import androidx.lifecycle.AndroidViewModel
-import java.io.File
+import android.app.*
+import android.content.*
+import androidx.lifecycle.*
+import java.io.*
 
 open class SavedViewModel<T>(
     val app: Application,
-    init: () -> T,
+    val init: () -> T,
     val serializer: (T) -> String,
-    deserializer: (String) -> T
+    val deserializer: (String) -> T
 ): AndroidViewModel(app) {
 
     val name = "somestupidassnamefile"
 
-    var savePoint: T = run {
+    fun load(): T {
 
         val file = File(app.filesDir, name)
 
         if (!file.exists()) file.createNewFile()
 
-        if (file.length() <= 0) init()
+        return if (file.length() <= 0) init()
         else deserializer(app
             .openFileInput(name)
             .bufferedReader()
@@ -29,12 +29,11 @@ open class SavedViewModel<T>(
         )
     }
 
-    override fun onCleared() {
+    fun save(state: T) {
         app.openFileOutput(name, Context.MODE_PRIVATE).use {
             it.write(
-                serializer(savePoint).toByteArray()
+                serializer(state).toByteArray()
             )
         }
-        super.onCleared()
     }
 }
