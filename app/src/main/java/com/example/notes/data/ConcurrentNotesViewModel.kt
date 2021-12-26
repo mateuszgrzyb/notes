@@ -1,41 +1,32 @@
 package com.example.notes.data
 
-import android.app.*
-import androidx.compose.runtime.*
-import androidx.lifecycle.*
-import kotlinx.coroutines.*
+import android.app.Application
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 
 class ConcurrentNotesViewModel(
     app: Application
 ) : SavedNotesViewModel(app) {
 
     // state flows down
-    var notes: MutableList<Note> = mutableStateListOf()
+    var notes = mutableStateListOf<Note>()
 
-    var changed: Boolean by mutableStateOf(false)
+    private var changed: Boolean by mutableStateOf(false)
 
     init {
-        viewModelScope.launch {
-            notes = loadDataAsync().await().toMutableList()
-        }
+        notes += load()
     }
 
-    suspend fun loadDataAsync(): Deferred<List<Note>> =
-        viewModelScope.async { withContext(Dispatchers.Unconfined) { load() } }
-
-    suspend fun saveDataAsync(data: List<Note>) =
-        viewModelScope.launch { withContext(Dispatchers.Unconfined) { save(data) } }
-
     // events flow up
-    fun addNote(note: Note) {
+    private fun addNote(note: Note) {
         notes += note
         changed = true
     }
 
-    fun editNote(idx: Int, note: Note) {
-        notes = notes.toMutableList().apply {
-            this[idx] = note
-        }
+    private fun editNote(idx: Int, note: Note) {
+        notes[idx] = note
         changed = true
     }
 
@@ -56,7 +47,7 @@ class ConcurrentNotesViewModel(
     }
 
     fun saveNotes() {
-        if (changed) save(notes)
+        save(notes)
     }
 
     override fun onCleared() {

@@ -1,9 +1,9 @@
 package com.example.notes.data
 
-import android.app.*
-import android.content.*
-import androidx.lifecycle.*
-import java.io.*
+import android.app.Application
+import android.content.Context
+import androidx.lifecycle.AndroidViewModel
+import java.io.File
 
 abstract class SavedViewModel<T>(
     val app: Application,

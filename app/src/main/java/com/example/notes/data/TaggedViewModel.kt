@@ -1,7 +1,7 @@
 package com.example.notes.data
 
-import androidx.compose.runtime.*
-import androidx.lifecycle.*
+import androidx.compose.runtime.mutableStateListOf
+import androidx.lifecycle.ViewModel
 
 class TaggedViewModel : ViewModel() {
 

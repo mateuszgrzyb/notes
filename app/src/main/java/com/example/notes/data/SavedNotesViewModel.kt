@@ -1,19 +1,17 @@
 package com.example.notes.data
 
 import android.app.Application
-import org.json.JSONArray
+import com.example.notes.data.CONST.JSON
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
 
 open class SavedNotesViewModel(app: Application) : SavedViewModel<List<Note>>(app) {
 
     override fun serialize(state: List<Note>): String =
-        JSONArray(state.map { note -> note.toJSON() }).toString()
+        JSON.encodeToString(state)
 
     override fun deserialize(data: String): List<Note> =
-        with(JSONArray(data)) {
-            (0 until length()).map { i ->
-                Note.fromJSON(optJSONObject(i))
-            }
-        }
+        JSON.decodeFromString(data)
 
     override fun init(): List<Note> = listOf()
 }

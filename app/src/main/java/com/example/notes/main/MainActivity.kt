@@ -1,16 +1,19 @@
 package com.example.notes.main
 
-import android.content.*
-import android.os.*
-import androidx.activity.*
-import androidx.activity.compose.*
-import androidx.activity.result.contract.*
-import androidx.appcompat.app.*
-import androidx.compose.foundation.*
-import androidx.lifecycle.*
-import com.example.notes.data.*
-import com.example.notes.editor.*
-import com.example.notes.ui.*
+import android.content.Intent
+import android.os.Bundle
+import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.lifecycle.ViewModelProvider
+import com.example.notes.data.CONST
+import com.example.notes.data.ConcurrentNotesViewModel
+import com.example.notes.data.Note
+import com.example.notes.data.TaggedViewModel
+import com.example.notes.editor.EditorActivity
+import com.example.notes.ui.NotesTheme
 
 @ExperimentalFoundationApi
 class MainActivity : AppCompatActivity() {
@@ -29,6 +32,7 @@ class MainActivity : AppCompatActivity() {
     ) {
         it?.data?.extras?.getParcelable<Note>(CONST.NOTE)?.let { note ->
             notesVM.putNoteFromEditor(note)
+            println("SIZE: ${notesVM.notes.size}")
         }
     }
 
