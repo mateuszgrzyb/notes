@@ -5,46 +5,30 @@ import androidx.compose.runtime.*
 import androidx.lifecycle.*
 import kotlinx.coroutines.*
 
-//import kotlin.concurrent.*
-
 class ConcurrentNotesViewModel(
     app: Application
-): SavedViewModel<List<Note>>(
-    app = app,
-    init =
-    ::listOf,
-    //LIST::debug,
-    serializer = LIST::serializer,
-    deserializer = LIST::deserializer
-) {
-
-    val saveTime: Long = 30_000
+) : SavedNotesViewModel(app) {
 
     // state flows down
-    var notes: List<Note> by mutableStateOf(listOf())
+    var notes: MutableList<Note> = mutableStateListOf()
 
     var changed: Boolean by mutableStateOf(false)
 
     init {
         viewModelScope.launch {
-            notes = loadDataAsync().await()
-            //while (true) {
-            //    delay(saveTime)
-            //    saveDataAsync(notes)
-            //}
+            notes = loadDataAsync().await().toMutableList()
         }
     }
 
     suspend fun loadDataAsync(): Deferred<List<Note>> =
-        viewModelScope.async { withContext(Dispatchers.IO) { load() } }
+        viewModelScope.async { withContext(Dispatchers.Unconfined) { load() } }
 
     suspend fun saveDataAsync(data: List<Note>) =
-        viewModelScope.launch { withContext(Dispatchers.IO) { save(data) } }
-
+        viewModelScope.launch { withContext(Dispatchers.Unconfined) { save(data) } }
 
     // events flow up
     fun addNote(note: Note) {
-        notes = notes + note
+        notes += note
         changed = true
     }
 
@@ -67,7 +51,7 @@ class ConcurrentNotesViewModel(
     }
 
     fun removeNotes(tagged: List<Note>) {
-        notes = notes - tagged
+        notes -= tagged.toSet()
         changed = true
     }
 
@@ -79,8 +63,4 @@ class ConcurrentNotesViewModel(
         saveNotes()
         super.onCleared()
     }
-
 }
-
-
-

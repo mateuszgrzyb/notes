@@ -21,28 +21,25 @@ fun EditorScreen(
     val (title, changeTitle) = remember { mutableStateOf(note?.title ?: "") }
     val (body, changeBody) = remember { mutableStateOf(note?.body ?: "") }
     val uuid = remember { note?.uuid ?: UUID.randomUUID() }
-    val padding = 8.dp
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text ("Editing") } ) }
+        topBar = { TopAppBar(title = { Text("Editing") }) }
     ) {
 
-        Column(modifier = Modifier.padding(padding)) {
+        Column(modifier = Modifier.padding(CONST.PADDING)) {
 
             EditorTextField(
                 text = title,
                 onTextChange = changeTitle,
                 label = "Title",
-                padding = padding
             )
-            WithConstraints {
-                val size = with(DensityAmbient.current) { constraints.maxWidth.toDp() }
+            BoxWithConstraints {
+                val size = maxWidth
                 EditorTextField(
                     text = body,
                     onTextChange = changeBody,
                     size = size,
                     label = "Body",
-                    padding = padding
                 )
             }
 
@@ -51,14 +48,12 @@ fun EditorScreen(
                 horizontalArrangement = Arrangement.End
             ) {
                 EditorButton(
-                    onClick = { onNoteChange(Note(title, body, uuid)) },
-                    text = "Apply",
-                    padding = padding,
-                )
-                EditorButton(
                     onClick = onActionBack,
                     text = "Back",
-                    padding = padding,
+                )
+                EditorButton(
+                    onClick = { onNoteChange(Note(title, body, uuid)) },
+                    text = "Apply",
                 )
             }
         }
@@ -70,19 +65,18 @@ fun EditorTextField(
     text: String,
     onTextChange: (String) -> Unit,
     label: String,
-    padding: Dp,
     modifier: Modifier = Modifier,
     size: Dp? = null
 ) {
 
-    val newModifier = if (size != null) modifier.preferredSize(size)
-                      else modifier.fillMaxWidth()
+    val newModifier = if (size != null) modifier.size(size)
+    else modifier.fillMaxWidth()
 
     TextField(
         value = text,
         label = { Text(label) },
         onValueChange = onTextChange,
-        modifier = newModifier.padding(padding).background(Color.Transparent),
+        modifier = newModifier.padding(CONST.PADDING).background(Color.Transparent),
     )
 }
 
@@ -90,14 +84,9 @@ fun EditorTextField(
 fun EditorButton(
     onClick: () -> Unit,
     text: String,
-    padding: Dp
 ) = Button(
     onClick = onClick,
-    modifier = Modifier.padding(padding)
+    modifier = Modifier.padding(CONST.PADDING)
 ) {
     Text(text)
 }
-
-
-
-

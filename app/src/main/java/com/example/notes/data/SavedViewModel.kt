@@ -5,14 +5,11 @@ import android.content.*
 import androidx.lifecycle.*
 import java.io.*
 
-open class SavedViewModel<T>(
+abstract class SavedViewModel<T>(
     val app: Application,
-    val init: () -> T,
-    val serializer: (T) -> String,
-    val deserializer: (String) -> T
-): AndroidViewModel(app) {
+) : AndroidViewModel(app) {
 
-    val name = "somestupidassnamefile"
+    val name = "notes.save"
 
     fun load(): T {
 
@@ -21,19 +18,24 @@ open class SavedViewModel<T>(
         if (!file.exists()) file.createNewFile()
 
         return if (file.length() <= 0) init()
-        else deserializer(app
-            .openFileInput(name)
-            .bufferedReader()
-            .readLines()
-            .joinToString()
+        else deserialize(
+            app
+                .openFileInput(name)
+                .bufferedReader()
+                .readLines()
+                .joinToString()
         )
     }
 
     fun save(state: T) {
         app.openFileOutput(name, Context.MODE_PRIVATE).use {
             it.write(
-                serializer(state).toByteArray()
+                serialize(state).toByteArray()
             )
         }
     }
+
+    abstract fun deserialize(data: String): T
+    abstract fun serialize(state: T): String
+    abstract fun init(): T
 }

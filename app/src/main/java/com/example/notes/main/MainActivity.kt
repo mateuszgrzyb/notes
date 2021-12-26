@@ -3,14 +3,16 @@ package com.example.notes.main
 import android.content.*
 import android.os.*
 import androidx.activity.*
+import androidx.activity.compose.*
 import androidx.activity.result.contract.*
 import androidx.appcompat.app.*
-import androidx.compose.ui.platform.*
+import androidx.compose.foundation.*
 import androidx.lifecycle.*
 import com.example.notes.data.*
 import com.example.notes.editor.*
 import com.example.notes.ui.*
 
+@ExperimentalFoundationApi
 class MainActivity : AppCompatActivity() {
 
     // all notes
@@ -23,9 +25,9 @@ class MainActivity : AppCompatActivity() {
 
     // receiving note
     val launcher = registerForActivityResult(
-            ActivityResultContracts.StartActivityForResult()
+        ActivityResultContracts.StartActivityForResult()
     ) {
-        it?.data?.extras?.getParcelable<Note>(GLOBAL.note)?.let { note ->
+        it?.data?.extras?.getParcelable<Note>(CONST.NOTE)?.let { note ->
             notesVM.putNoteFromEditor(note)
         }
     }
@@ -35,7 +37,7 @@ class MainActivity : AppCompatActivity() {
         launcher.launch(
             Intent(this, EditorActivity::class.java).apply {
                 if (note != null) {
-                    putExtra(GLOBAL.note, note)
+                    putExtra(CONST.NOTE, note)
                 }
             }
         )
@@ -47,11 +49,9 @@ class MainActivity : AppCompatActivity() {
         taggedVM.clearTagged()
     }
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         println("create")
-
 
         setContent {
             NotesTheme {
@@ -73,5 +73,3 @@ class MainActivity : AppCompatActivity() {
         super.onStop()
     }
 }
-
-

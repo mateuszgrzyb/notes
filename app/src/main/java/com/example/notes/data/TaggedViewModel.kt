@@ -3,22 +3,24 @@ package com.example.notes.data
 import androidx.compose.runtime.*
 import androidx.lifecycle.*
 
-class TaggedViewModel: ViewModel() {
+class TaggedViewModel : ViewModel() {
 
     // state flows down
-    var tagged: List<Note> by mutableStateOf(listOf())
+    val tagged: MutableList<Note> = mutableStateListOf()
 
     // events flow up
-    fun tagNote(note: Note, tag: Boolean) {
-        tagged = tagged.toMutableList().apply {
-            if (tag) add(note)
-            else remove(note)
+    fun tagNote(note: Note) {
+        if (note in tagged) {
+            tagged.remove(note)
+        } else {
+            tagged.add(note)
+        }
+        for (t in tagged) {
+            println(t)
         }
     }
 
     fun clearTagged() {
-        tagged = listOf()
+        tagged.clear()
     }
-
 }
-

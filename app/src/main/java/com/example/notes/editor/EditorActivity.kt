@@ -1,16 +1,14 @@
 package com.example.notes.editor
 
 import android.os.*
+import androidx.activity.compose.*
 import androidx.appcompat.app.*
-import androidx.compose.ui.platform.*
 import com.example.notes.data.*
 import com.example.notes.ui.*
 
 class EditorActivity : AppCompatActivity() {
-
-
     fun sendNote(note: Note) {
-        intent.putExtra(GLOBAL.note, note)
+        intent.putExtra(CONST.NOTE, note)
         // the most important thing when passing data
         // to main activity through intents
         setResult(RESULT_OK, intent)
@@ -24,7 +22,7 @@ class EditorActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val note: Note? = intent.extras?.getParcelable(GLOBAL.note)
+        val note: Note? = intent.extras?.getParcelable(CONST.NOTE)
 
         setContent {
             NotesTheme {
@@ -37,6 +35,3 @@ class EditorActivity : AppCompatActivity() {
         }
     }
 }
-
-
-

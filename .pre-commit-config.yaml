@@ -1,0 +1,8 @@
+repos:
+- repo: git://github.com/jcchavezs/pre-commit-kotlin 
+  rev: e4dc07468a29c1857804f9c0152c8c8a4124d28b 
+  hooks: 
+    - id: ktlint 
+      args: 
+        - --color
+        - --disabled_rules=no-wildcard-imports

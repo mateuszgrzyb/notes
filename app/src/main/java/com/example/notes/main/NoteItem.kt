@@ -1,12 +1,12 @@
 package com.example.notes.main
 
-import androidx.compose.foundation.*
+import androidx.compose.foundation.gestures.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.*
-import androidx.compose.ui.gesture.*
 import androidx.compose.ui.graphics.*
+import androidx.compose.ui.input.pointer.*
 import androidx.compose.ui.text.style.*
 import androidx.compose.ui.unit.*
 import com.example.notes.data.*
@@ -17,25 +17,31 @@ fun NoteItem(
     onEditNote: (Note) -> Unit,
     tagged: Boolean,
     tagging: Boolean,
-    onTagNote: (Boolean) -> Unit,
+    onTagNote: () -> Unit,
     modifier: Modifier = Modifier,
     size: Dp,
-    padding: Dp,
 ) {
 
     Card(
         modifier = Modifier
-            .preferredSize(size)
-            .padding(padding)
-            .clickable(onClick = { if (tagging) onTagNote(!tagged) else onEditNote(note) } )
-            .longPressGestureFilter { if (!tagging) onTagNote(!tagged) }
-        ,
+            .size(size)
+            .padding(CONST.PADDING)
+            .pointerInput(tagging) {
+                detectTapGestures(
+                    onTap = {
+                        if (tagging) onTagNote() else onEditNote(note)
+                    },
+                    onLongPress = {
+                        if (!tagging) onTagNote()
+                    },
+                )
+            },
         backgroundColor = if (tagged) Color.Gray else Color.LightGray
 
     ) {
         Column(
             modifier = modifier
-                .padding(padding)
+                .padding(CONST.PADDING)
         ) {
             Text(
                 text = note.title,
@@ -43,7 +49,8 @@ fun NoteItem(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
-            Stack {
+            // Stack {
+            Column {
                 Text(
                     text = note.body,
                     style = MaterialTheme.typography.body1,
@@ -52,6 +59,4 @@ fun NoteItem(
             }
         }
     }
-
 }
-
