@@ -1,10 +1,11 @@
 package com.example.notes.editor
 
-import android.os.*
-import androidx.activity.compose.*
-import androidx.appcompat.app.*
-import com.example.notes.data.*
-import com.example.notes.ui.*
+import android.os.Bundle
+import androidx.activity.compose.setContent
+import androidx.appcompat.app.AppCompatActivity
+import com.example.notes.data.CONST
+import com.example.notes.data.Note
+import com.example.notes.ui.NotesTheme
 
 class EditorActivity : AppCompatActivity() {
     fun sendNote(note: Note) {
@@ -15,7 +16,7 @@ class EditorActivity : AppCompatActivity() {
     }
 
     fun goBack(note: Note? = null) {
-        if (!(note == null || note.isEmpty())) sendNote(note)
+        if (note?.isEmpty() == false) sendNote(note)
         finish()
     }
 

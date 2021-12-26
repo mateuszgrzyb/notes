@@ -1,6 +1,6 @@
 package com.example.notes
 
-import org.junit.Assert.*
+import junit.framework.Assert.assertEquals
 import org.junit.Test
 
 /**

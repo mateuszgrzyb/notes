@@ -1,7 +1,7 @@
 package com.example.notes.data
 
-import androidx.compose.runtime.*
-import androidx.lifecycle.*
+import androidx.compose.runtime.mutableStateListOf
+import androidx.lifecycle.ViewModel
 
 class TaggedViewModel : ViewModel() {
 
@@ -10,13 +10,9 @@ class TaggedViewModel : ViewModel() {
 
     // events flow up
     fun tagNote(note: Note) {
-        if (note in tagged) {
-            tagged.remove(note)
-        } else {
-            tagged.add(note)
-        }
-        for (t in tagged) {
-            println(t)
+        tagged.apply {
+            if (note in this) remove(note)
+            else add(note)
         }
     }
 

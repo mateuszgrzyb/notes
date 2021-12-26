@@ -5,4 +5,4 @@ repos:
     - id: ktlint 
       args: 
         - --color
-        - --disabled_rules=no-wildcard-imports
+          # - --disabled_rules=no-wildcard-imports
