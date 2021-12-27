@@ -36,13 +36,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     // sending note
-    private fun goToEditor(note: Note? = null) {
+    private fun goToEditor(note: Note) {
         launcher.launch(
-            Intent(this, EditorActivity::class.java).apply {
-                if (note != null) {
-                    putExtra(CONST.NOTE, note)
-                }
-            }
+            Intent(this, EditorActivity::class.java).putExtra(CONST.NOTE, note)
         )
     }
 
@@ -59,7 +55,6 @@ class MainActivity : AppCompatActivity() {
             NotesTheme {
                 MainScreen(
                     notes = notesVM.notes,
-                    onAddNote = ::goToEditor,
                     onEditNote = ::goToEditor,
                     tagged = taggedVM.tagged,
                     onTagNote = taggedVM::tagNote,

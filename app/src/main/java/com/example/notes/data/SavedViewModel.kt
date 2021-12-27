@@ -9,7 +9,7 @@ abstract class SavedViewModel<T>(
     val app: Application,
 ) : AndroidViewModel(app) {
 
-    val name = "notes.save.new"
+    val name = "notes.save.somewhere"
 
     fun load(): T {
 

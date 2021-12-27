@@ -4,10 +4,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.serialization.json.Json
 
 object CONST {
-    const val TITLE = "title"
-    const val BODY = "body"
-    const val UUID = "uuid"
-    const val NOTE = "note"
+    const val NOTE = "com.example.notes.NOTE"
     val PADDING = 5.dp
     val JSON = Json { encodeDefaults = true }
 }

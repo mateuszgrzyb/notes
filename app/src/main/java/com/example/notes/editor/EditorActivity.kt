@@ -13,10 +13,7 @@ class EditorActivity : AppCompatActivity() {
 
     private fun goBack(note: Note? = null) {
         if (!(note == null || note.isEmpty())) {
-            intent.putExtra(CONST.NOTE, note)
-            // the most important thing when passing data
-            // to main activity through intents
-            setResult(RESULT_OK, intent)
+            setResult(RESULT_OK, intent.putExtra(CONST.NOTE, note))
         }
         finish()
     }
@@ -30,9 +27,9 @@ class EditorActivity : AppCompatActivity() {
             NotesTheme {
                 when (note) {
                     is TextNote ->
-                        TextNoteEditorScreen(note = note as TextNote?) { note -> goBack(note) }
-                    else ->
-                        ListNoteEditorScreen(note = note as ListNote?) { note -> goBack(note) }
+                        TextNoteEditorScreen(note) { note -> goBack(note) }
+                    is ListNote ->
+                        ListNoteEditorScreen(note) { note -> goBack(note) }
                 }
             }
         }

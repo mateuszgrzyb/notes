@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.GridCells
 import androidx.compose.foundation.lazy.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
@@ -20,15 +21,23 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.constraintlayout.compose.ConstraintLayout
 import com.example.notes.data.CONST
+import com.example.notes.data.ListNote
 import com.example.notes.data.Note
+import com.example.notes.data.TextNote
+import com.example.notes.ui.typography
 
 @ExperimentalFoundationApi
 @Composable
 fun MainScreen(
     notes: List<Note>,
-    onAddNote: () -> Unit,
     onEditNote: (Note) -> Unit,
     tagged: List<Note>,
     onTagNote: (Note) -> Unit,
@@ -38,7 +47,7 @@ fun MainScreen(
     val deleting = tagged.isNotEmpty()
 
     Scaffold(
-        floatingActionButton = { if (!deleting) NotesFAB(onAddNote) },
+        floatingActionButton = { if (!deleting) NotesFAB(onEditNote) },
         topBar = { if (deleting) NotesTopAppBar(tagged, onRemoveTagged, onCancelRemoval) }
     ) {
         NotesList(
@@ -72,12 +81,66 @@ fun NotesTopAppBar(
 )
 
 @Composable
-fun NotesFAB(
-    onAddNote: () -> Unit,
-) = FloatingActionButton(
-    onClick = { onAddNote() },
+fun MiniFab(
+    text: String,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
 ) {
-    Icon(Icons.Default.Add, "")
+    FloatingActionButton(
+        onClick = onClick,
+        modifier = modifier.size(40.dp)
+    ) {
+        Text(
+            text = text,
+            style = typography.button
+        )
+    }
+}
+
+@Composable
+fun NotesFAB(
+    onEditNote: (Note) -> Unit,
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    ConstraintLayout {
+        val (fab, textButton, listButton) = createRefs()
+
+        if (expanded) {
+            MiniFab(
+                text = "List",
+                modifier = Modifier
+                    .constrainAs(listButton) {
+                        bottom.linkTo(textButton.top, 16.dp)
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                    }
+            ) {
+                expanded = false
+                onEditNote(ListNote())
+            }
+
+            MiniFab(
+                text = "Text",
+                modifier = Modifier
+                    .constrainAs(textButton) {
+                        bottom.linkTo(fab.top, 16.dp)
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                    }
+            ) {
+                expanded = false
+                onEditNote(TextNote())
+            }
+        }
+
+        FloatingActionButton(
+            onClick = { expanded = !expanded },
+            modifier = Modifier.constrainAs(fab) { bottom.linkTo(parent.bottom) }
+        ) {
+            Icon(Icons.Default.Add, "")
+        }
+    }
 }
 
 @ExperimentalFoundationApi
@@ -90,7 +153,9 @@ fun NotesList(
 ) {
 
     Column(
-        modifier = Modifier.fillMaxWidth().padding(CONST.PADDING),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(CONST.PADDING),
     ) {
         BoxWithConstraints {
             val size = (maxWidth - CONST.PADDING * 2) / 2
