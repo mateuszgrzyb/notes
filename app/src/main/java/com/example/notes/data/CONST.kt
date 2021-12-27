@@ -8,6 +8,6 @@ object CONST {
     const val BODY = "body"
     const val UUID = "uuid"
     const val NOTE = "note"
-    val PADDING = 8.dp
+    val PADDING = 5.dp
     val JSON = Json { encodeDefaults = true }
 }

@@ -10,9 +10,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.Button
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
+import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -45,6 +47,7 @@ fun EditorScreen(
                 text = title,
                 onTextChange = changeTitle,
                 label = "Title",
+                singleLine = true,
             )
             BoxWithConstraints {
                 val size = maxWidth
@@ -79,6 +82,7 @@ fun EditorTextField(
     onTextChange: (String) -> Unit,
     label: String,
     modifier: Modifier = Modifier,
+    singleLine: Boolean = false,
     size: Dp? = null
 ) {
 
@@ -89,7 +93,16 @@ fun EditorTextField(
         value = text,
         label = { Text(label) },
         onValueChange = onTextChange,
-        modifier = newModifier.padding(CONST.PADDING).background(Color.Transparent),
+        modifier = newModifier
+            .padding(CONST.PADDING)
+            .background(Color.Transparent),
+        singleLine = singleLine,
+        shape = MaterialTheme.shapes.small,
+        colors = TextFieldDefaults.textFieldColors(
+            focusedIndicatorColor = Color.Transparent,
+            unfocusedIndicatorColor = Color.Transparent,
+            disabledIndicatorColor = Color.Transparent,
+        )
     )
 }
 

@@ -5,6 +5,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.launch
 
 class ConcurrentNotesViewModel(
     app: Application
@@ -16,7 +18,9 @@ class ConcurrentNotesViewModel(
     private var changed: Boolean by mutableStateOf(false)
 
     init {
-        notes += load()
+        viewModelScope.launch {
+            notes += load()
+        }
     }
 
     // events flow up
@@ -47,7 +51,9 @@ class ConcurrentNotesViewModel(
     }
 
     fun saveNotes() {
-        save(notes)
+        viewModelScope.launch {
+            save(notes)
+        }
     }
 
     override fun onCleared() {
