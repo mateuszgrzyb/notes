@@ -19,25 +19,24 @@ import com.example.notes.ui.NotesTheme
 class MainActivity : AppCompatActivity() {
 
     // all notes
-    val notesVM: ConcurrentNotesViewModel by viewModels {
+    private val notesVM: ConcurrentNotesViewModel by viewModels {
         ViewModelProvider.AndroidViewModelFactory(this.application)
     }
 
     // notes tagged for removal
-    val taggedVM: TaggedViewModel by viewModels()
+    private val taggedVM: TaggedViewModel by viewModels()
 
     // receiving note
-    val launcher = registerForActivityResult(
+    private val launcher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) {
         it?.data?.extras?.getParcelable<Note>(CONST.NOTE)?.let { note ->
             notesVM.putNoteFromEditor(note)
-            println("SIZE: ${notesVM.notes.size}")
         }
     }
 
     // sending note
-    fun goToEditor(note: Note? = null) {
+    private fun goToEditor(note: Note? = null) {
         launcher.launch(
             Intent(this, EditorActivity::class.java).apply {
                 if (note != null) {
@@ -48,14 +47,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     // deleting tagged notes
-    fun removeTagged() {
+    private fun removeTagged() {
         notesVM.removeNotes(taggedVM.tagged)
         taggedVM.clearTagged()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        println("create")
 
         setContent {
             NotesTheme {

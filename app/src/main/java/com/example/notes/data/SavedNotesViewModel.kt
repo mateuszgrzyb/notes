@@ -8,10 +8,10 @@ import kotlinx.serialization.encodeToString
 open class SavedNotesViewModel(app: Application) : SavedViewModel<List<Note>>(app) {
 
     override fun serialize(state: List<Note>): String =
-        JSON.encodeToString(state)
+        JSON.encodeToString<List<Note>>(state)
 
     override fun deserialize(data: String): List<Note> =
-        JSON.decodeFromString(data)
+        JSON.decodeFromString<List<Note>>(data)
 
     override fun init(): List<Note> = listOf()
 }

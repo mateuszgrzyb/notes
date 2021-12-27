@@ -35,7 +35,6 @@ fun MainScreen(
     onRemoveTagged: () -> Unit,
     onCancelRemoval: () -> Unit,
 ) {
-    println(notes.size)
     val deleting = tagged.isNotEmpty()
 
     Scaffold(

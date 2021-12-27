@@ -4,19 +4,20 @@ import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import com.example.notes.data.CONST
+import com.example.notes.data.ListNote
 import com.example.notes.data.Note
+import com.example.notes.data.TextNote
 import com.example.notes.ui.NotesTheme
 
 class EditorActivity : AppCompatActivity() {
-    fun sendNote(note: Note) {
-        intent.putExtra(CONST.NOTE, note)
-        // the most important thing when passing data
-        // to main activity through intents
-        setResult(RESULT_OK, intent)
-    }
 
-    fun goBack(note: Note? = null) {
-        if (!(note == null || note.isEmpty())) sendNote(note)
+    private fun goBack(note: Note? = null) {
+        if (!(note == null || note.isEmpty())) {
+            intent.putExtra(CONST.NOTE, note)
+            // the most important thing when passing data
+            // to main activity through intents
+            setResult(RESULT_OK, intent)
+        }
         finish()
     }
 
@@ -27,11 +28,12 @@ class EditorActivity : AppCompatActivity() {
 
         setContent {
             NotesTheme {
-                EditorScreen(
-                    note = note,
-                    onNoteChange = ::goBack,
-                    onActionBack = ::goBack
-                )
+                when (note) {
+                    is TextNote ->
+                        TextNoteEditorScreen(note = note as TextNote?) { note -> goBack(note) }
+                    else ->
+                        ListNoteEditorScreen(note = note as ListNote?) { note -> goBack(note) }
+                }
             }
         }
     }

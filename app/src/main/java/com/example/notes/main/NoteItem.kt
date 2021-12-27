@@ -54,10 +54,9 @@ fun NoteItem(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
-            // Stack {
             Column {
                 Text(
-                    text = note.body,
+                    text = note.printBody(),
                     style = MaterialTheme.typography.body1,
                     overflow = TextOverflow.Ellipsis,
                 )

@@ -15,9 +15,6 @@ class TaggedViewModel : ViewModel() {
         } else {
             tagged.add(note)
         }
-        for (t in tagged) {
-            println(t)
-        }
     }
 
     fun clearTagged() {
