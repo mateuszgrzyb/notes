@@ -9,7 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.GridCells
 import androidx.compose.foundation.lazy.LazyVerticalGrid
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
@@ -160,17 +160,15 @@ fun NotesList(
         BoxWithConstraints {
             val size = (maxWidth - CONST.PADDING * 2) / 2
 
-            val newNotes = notes.reversed()
-
             Row {
                 LazyVerticalGrid(
                     cells = GridCells.Fixed(2),
                     content = {
-                        items(newNotes) {
-                            note ->
+                        itemsIndexed(notes) {
+                            i, note ->
                             NoteItem(
                                 note = note,
-                                onEditNote = onEditNote,
+                                onEditNote = { onEditNote(notes[i]) },
                                 tagged = note in tagged,
                                 tagging = tagged.isNotEmpty(),
                                 onTagNote = { onTagNote(note) },

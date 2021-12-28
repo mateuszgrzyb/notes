@@ -25,7 +25,7 @@ class ConcurrentNotesViewModel(
 
     // events flow up
     private fun addNote(note: Note) {
-        notes += note
+        notes.add(0, note)
         changed = true
     }
 
