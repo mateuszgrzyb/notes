@@ -1,9 +1,10 @@
 package com.example.notes.editor
 
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.icons.Icons
@@ -23,6 +24,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import com.example.notes.data.CONST
 import com.example.notes.data.ListNote
+import com.example.notes.data.ListNoteRow
 import java.util.UUID
 import kotlin.math.abs
 import kotlin.math.roundToInt
@@ -36,7 +38,7 @@ fun ListNoteEditorScreen(
     val (title, changeTitle) = remember { mutableStateOf(note?.title ?: "") }
     val list = remember {
         mutableStateListOf(
-            *(note?.body ?: listOf()).toTypedArray(), ""
+            *(note?.body ?: listOf()).toTypedArray(), ListNoteRow()
         )
     }
     val uuid = remember { note?.uuid ?: UUID.randomUUID() }
@@ -45,21 +47,22 @@ fun ListNoteEditorScreen(
         title = title,
         changeTitle = changeTitle,
         onNoteChange = {
-            list.removeLast()
-            onNoteChange(ListNote(title, list, uuid))
+            val body = list.toMutableList()
+            body.removeLast()
+            onNoteChange(ListNote(title, body, uuid))
         },
         onActionBack = { onNoteChange(null) },
     ) {
-        Column {
-            for ((i, e) in list.withIndex()) {
+        LazyColumn {
+            itemsIndexed(list) { i, e ->
                 ListNoteElemTextField(
-                    text = e,
-                    onTextChange = { newE ->
+                    elem = e,
+                    onElemChange = { newE ->
                         list[i] = newE
-                        list.removeIf { it.isBlank() }
-                        list.add("")
+                        list.removeAll { it.text.isBlank() }
+                        list.add(ListNoteRow())
                     },
-                    label = "",
+                    enableButton = (i + 1 < list.size)
                 )
             }
         }
@@ -68,24 +71,22 @@ fun ListNoteEditorScreen(
 
 @Composable
 fun ListNoteElemTextField(
-    text: String,
-    onTextChange: (String) -> Unit,
-    label: String,
+    elem: ListNoteRow,
+    onElemChange: (ListNoteRow) -> Unit,
     modifier: Modifier = Modifier,
-    singleLine: Boolean = false,
+    enableButton: Boolean = true,
     size: Dp? = null,
 ) {
     var offsetX by remember { mutableStateOf(0f) }
     val maxOffsetX = 500f
-    var done by remember { mutableStateOf(false) }
 
     val newModifier = modifier
         .alpha((maxOffsetX - abs(offsetX)) / maxOffsetX)
         .offset { IntOffset(offsetX.roundToInt(), 0) }
-        .pointerInput(text) {
+        .pointerInput(elem.text) {
             this.detectHorizontalDragGestures(
                 onDragEnd = {
-                    if (abs(offsetX) > maxOffsetX) onTextChange("")
+                    if (abs(offsetX) > maxOffsetX) onElemChange(ListNoteRow())
                     offsetX = 0f
                 },
                 onHorizontalDrag = { change, dragAmount ->
@@ -96,18 +97,19 @@ fun ListNoteElemTextField(
         }
 
     EditorTextField(
-        text = text,
-        onTextChange = onTextChange,
-        label = label,
+        text = elem.text,
+        onTextChange = { text -> onElemChange(ListNoteRow(elem.mark, text)) },
+        label = "",
         modifier = newModifier,
-        singleLine = singleLine,
+        singleLine = true,
         size = size,
         leadingIcon = {
             IconButton(
-                onClick = { done = !done },
-                modifier = Modifier.padding(CONST.PADDING)
+                onClick = { onElemChange(ListNoteRow(!elem.mark, elem.text)) },
+                modifier = Modifier.padding(CONST.PADDING),
+                enabled = enableButton,
             ) {
-                Icon(if (done) Icons.Sharp.Check else Icons.Sharp.Close, "")
+                Icon(if (elem.mark) Icons.Sharp.Check else Icons.Sharp.Close, "")
             }
         },
     )

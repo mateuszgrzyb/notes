@@ -37,16 +37,30 @@ data class TextNote(
 @Parcelize
 @Immutable
 @Serializable
+data class ListNoteRow(
+    val mark: Boolean,
+    val text: String,
+) : Parcelable {
+    constructor() : this(false, "")
+}
+
+@Parcelize
+@Immutable
+@Serializable
 data class ListNote(
     override val title: String,
-    override val body: List<String>,
+    // override val body: List<Pair<Boolean, String>>,
+    override val body: List<ListNoteRow>,
     override val uuid: @Serializable(with = UUIDSerializer::class) UUID = UUID.randomUUID()
 ) : Note(), Parcelable {
     constructor() : this("", listOf())
 
     override fun bodyIsEmpty(): Boolean = body.isEmpty()
     override fun printBody(): String =
-        body.joinToString(separator = System.lineSeparator()) { elem -> "• $elem" }
+        body.joinToString(separator = System.lineSeparator()) {
+            (mark, content) ->
+            "${if (mark) "✔" else "✘"} $content"
+        }
 }
 
 @Parcelize
