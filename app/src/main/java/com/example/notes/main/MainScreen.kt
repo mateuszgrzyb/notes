@@ -27,11 +27,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.constraintlayout.compose.ConstrainedLayoutReference
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.example.notes.data.CONST
 import com.example.notes.data.ListNote
 import com.example.notes.data.Note
 import com.example.notes.data.TextNote
+import com.example.notes.data.VoiceNote
 import com.example.notes.ui.typography
 
 @ExperimentalFoundationApi
@@ -81,7 +83,7 @@ fun NotesTopAppBar(
 )
 
 @Composable
-fun MiniFab(
+fun MiniFAB(
     text: String,
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
@@ -104,33 +106,40 @@ fun NotesFAB(
     var expanded by remember { mutableStateOf(false) }
 
     ConstraintLayout {
-        val (fab, textButton, listButton) = createRefs()
+        fun miniFABModifier(
+            from: ConstrainedLayoutReference,
+            to: ConstrainedLayoutReference,
+        ): Modifier = Modifier.constrainAs(from) {
+            bottom.linkTo(to.top, 16.dp)
+            start.linkTo(parent.start)
+            end.linkTo(parent.end)
+        }
+
+        val (fab, voiceButton, listButton, textButton) = createRefs()
 
         if (expanded) {
-            MiniFab(
+            MiniFAB(
+                text = "Text",
+                modifier = miniFABModifier(textButton, listButton),
+            ) {
+                expanded = false
+                onEditNote(TextNote())
+            }
+
+            MiniFAB(
                 text = "List",
-                modifier = Modifier
-                    .constrainAs(listButton) {
-                        bottom.linkTo(textButton.top, 16.dp)
-                        start.linkTo(parent.start)
-                        end.linkTo(parent.end)
-                    }
+                modifier = miniFABModifier(listButton, voiceButton),
             ) {
                 expanded = false
                 onEditNote(ListNote())
             }
 
-            MiniFab(
-                text = "Text",
-                modifier = Modifier
-                    .constrainAs(textButton) {
-                        bottom.linkTo(fab.top, 16.dp)
-                        start.linkTo(parent.start)
-                        end.linkTo(parent.end)
-                    }
+            MiniFAB(
+                text = "Voice",
+                modifier = miniFABModifier(voiceButton, fab),
             ) {
                 expanded = false
-                onEditNote(TextNote())
+                onEditNote(VoiceNote())
             }
         }
 

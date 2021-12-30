@@ -1,6 +1,7 @@
 package com.example.notes.main
 
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
@@ -19,12 +20,12 @@ import com.example.notes.ui.NotesTheme
 class MainActivity : AppCompatActivity() {
 
     // all notes
-    private val notesVM: ConcurrentNotesViewModel by viewModels {
+    private val notesVM by viewModels<ConcurrentNotesViewModel> {
         ViewModelProvider.AndroidViewModelFactory(this.application)
     }
 
     // notes tagged for removal
-    private val taggedVM: TaggedViewModel by viewModels()
+    private val taggedVM by viewModels<TaggedViewModel>()
 
     // receiving note
     private val launcher = registerForActivityResult(
@@ -51,6 +52,8 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        checkPermissions(this)
+
         setContent {
             NotesTheme {
                 MainScreen(
@@ -70,3 +73,20 @@ class MainActivity : AppCompatActivity() {
         super.onStop()
     }
 }
+
+fun getRequiredPermissions(activity: AppCompatActivity): List<String> =
+    activity.packageManager.getPackageInfo(
+        activity.packageName,
+        PackageManager.GET_PERMISSIONS
+    ).requestedPermissions.toList()
+
+fun checkPermission(activity: AppCompatActivity, permission: String) =
+    if (
+        activity.checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED
+    ) activity.requestPermissions(arrayOf(permission), 0)
+    else Unit
+
+fun checkPermissions(activity: AppCompatActivity) =
+    getRequiredPermissions(activity).forEach { p ->
+        checkPermission(activity, p)
+    }

@@ -7,6 +7,7 @@ import com.example.notes.data.CONST
 import com.example.notes.data.ListNote
 import com.example.notes.data.Note
 import com.example.notes.data.TextNote
+import com.example.notes.data.VoiceNote
 import com.example.notes.ui.NotesTheme
 
 class EditorActivity : AppCompatActivity() {
@@ -30,6 +31,8 @@ class EditorActivity : AppCompatActivity() {
                         TextNoteEditorScreen(note) { note -> goBack(note) }
                     is ListNote ->
                         ListNoteEditorScreen(note) { note -> goBack(note) }
+                    is VoiceNote ->
+                        VoiceNoteEditorScreen(note) { note -> goBack(note) }
                 }
             }
         }
