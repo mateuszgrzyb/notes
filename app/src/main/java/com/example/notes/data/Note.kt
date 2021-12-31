@@ -42,6 +42,8 @@ data class ListNoteRow(
     val text: String,
 ) : Parcelable {
     constructor() : this(false, "")
+
+    override fun toString(): String = "${if (mark) "✔" else "✘"} $text"
 }
 
 @Parcelize
@@ -49,18 +51,13 @@ data class ListNoteRow(
 @Serializable
 data class ListNote(
     override val title: String,
-    // override val body: List<Pair<Boolean, String>>,
     override val body: List<ListNoteRow>,
     override val uuid: @Serializable(with = UUIDSerializer::class) UUID = UUID.randomUUID()
 ) : Note(), Parcelable {
     constructor() : this("", listOf())
 
     override fun bodyIsEmpty(): Boolean = body.isEmpty()
-    override fun printBody(): String =
-        body.joinToString(separator = System.lineSeparator()) {
-            (mark, content) ->
-            "${if (mark) "✔" else "✘"} $content"
-        }
+    override fun printBody(): String = body.joinToString(separator = System.lineSeparator())
 }
 
 @Parcelize
@@ -69,9 +66,10 @@ data class ListNote(
 data class VoiceNote(
     override val title: String,
     override val body: @Serializable(with = FileSerializer::class) File?,
+    val time: Long,
     override val uuid: @Serializable(with = UUIDSerializer::class) UUID = UUID.randomUUID()
 ) : Note(), Parcelable {
-    constructor() : this("", null)
+    constructor() : this("", null, 0L)
 
     override fun printBody(): String = "Voice recording"
     override fun bodyIsEmpty(): Boolean = (body == null)

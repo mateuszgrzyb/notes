@@ -27,13 +27,13 @@ class VoiceMemoRecorder(
         start = System.nanoTime()
     }
 
-    fun stop(): Long? {
+    fun stop(): Long {
         val stop = System.nanoTime()
         recorder?.apply {
             stop()
             release()
         }
         recorder = null
-        return start?.let { stop - it }
+        return start?.let { stop - it } ?: 0L
     }
 }
